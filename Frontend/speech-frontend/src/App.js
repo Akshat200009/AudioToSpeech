@@ -6,7 +6,12 @@ import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import Upload from "./Pages/Upload";
 import History from "./Pages/History";
+import ProtectedRoute
+from "./Components/ProtectedRoute";
+import { ToastContainer }
+from "react-toastify";
 
+import "react-toastify/dist/ReactToastify.css";
 function App() {
 
   return (
@@ -32,17 +37,24 @@ function App() {
           element={<Register />}
         />
 
-        <Route
-         path="/upload"
-        element={<Upload />}
+  <Route
+    path="/upload"
+
+    element={
+        <ProtectedRoute>
+
+            <Upload />
+
+        </ProtectedRoute>
+    }
 />
-       
        <Route
     path="/history"
     element={<History />}
 />
+     
       </Routes>
-
+      <ToastContainer />
     </BrowserRouter>
   );
 }

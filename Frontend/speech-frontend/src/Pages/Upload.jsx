@@ -1,55 +1,73 @@
 import { useState } from "react";
+
 import api from "../Services/api";
+
 import AudioRecorder from "../Components/AudioRecorder";
+
+import { toast } from "react-toastify";
 
 function Upload() {
 
     const [file, setFile] = useState(null);
 
-    const [transcript, setTranscript] = useState("");
+    const [transcript, setTranscript] =
+            useState("");
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+            useState(false);
 
     const handleUpload = async () => {
 
         if (!file) {
 
-            alert("Please Select Audio File");
+            toast.warning(
+                "Please Select Audio File"
+            );
 
             return;
         }
+
+        const formData = new FormData();
+
+        formData.append("file", file);
 
         try {
 
             setLoading(true);
 
-            const formData = new FormData();
+            const token =
+                    localStorage.getItem("token");
 
-            formData.append("file", file);
+            const response =
+                    await api.post(
 
-            const token = localStorage.getItem("token");
+                            "/speech-to-text",
 
-            const response = await api.post(
+                            formData,
 
-                "/speech-to-text",
+                            {
+                                headers: {
+                                    Authorization:
+                                        `Bearer ${token}`
+                                }
+                            }
+                    );
 
-                formData,
-
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data"
-                    }
-                }
+            setTranscript(
+                    response.data.transcript
             );
 
-            setTranscript(response.data.transcript);
+            toast.success(
+                "Transcript Generated"
+            );
 
         } catch (error) {
 
             console.log(error);
 
-            alert("Upload Failed");
+            toast.error(
+                "Upload Failed"
+            );
 
         } finally {
 
@@ -59,58 +77,152 @@ function Upload() {
 
     return (
 
-        <div className="flex flex-col items-center mt-16">
+        <div
+            className="
+                min-h-screen
+                bg-gradient-to-br
+                from-gray-100
+                to-gray-300
+                flex
+                justify-center
+                items-center
+                p-6
+            "
+        >
 
-            <h1 className="text-4xl font-bold mb-8">
+            <div
+                className="
+                    bg-white
+                    p-10
+                    rounded-2xl
+                    shadow-2xl
+                    w-full
+                    max-w-2xl
+                "
+            >
 
-                Upload Audio File
+                <h1
+                    className="
+                        text-4xl
+                        font-bold
+                        text-center
+                        mb-8
+                    "
+                >
 
-            </h1>
+                    Upload Audio
 
-            <div className="shadow-lg p-8 rounded w-[500px] bg-white">
+                </h1>
 
                 <input
                     type="file"
+
                     accept="audio/*"
-                    onChange={(e) => setFile(e.target.files[0])}
-                    className="mb-5"
+
+                    onChange={(e) =>
+                        setFile(
+                            e.target.files[0]
+                        )
+                    }
+
+                    className="
+                        w-full
+                        border
+                        p-3
+                        rounded
+                        mb-6
+                    "
                 />
 
                 <button
                     onClick={handleUpload}
-                    className="bg-black text-white px-6 py-3 rounded w-full"
+
+                    className="
+                        bg-black
+                        hover:bg-gray-800
+                        transition-all
+                        duration-300
+                        text-white
+                        px-6
+                        py-3
+                        rounded
+                        w-full
+                        flex
+                        justify-center
+                        items-center
+                    "
                 >
 
                     {
-                        loading ? "Processing..." : "Upload Audio"
+                        loading ? (
+
+                            <div
+                                className="
+                                    h-5
+                                    w-5
+                                    border-2
+                                    border-white
+                                    border-t-transparent
+                                    rounded-full
+                                    animate-spin
+                                "
+                            ></div>
+
+                        ) : (
+
+                            "Upload Audio"
+                        )
                     }
 
                 </button>
 
+                <div className="mt-10">
+
+                    <AudioRecorder />
+
+                </div>
+
                 {
                     transcript && (
 
-                        <div className="mt-6">
+                        <div
+                            className="
+                                mt-10
+                                bg-gray-100
+                                p-6
+                                rounded-xl
+                                shadow-md
+                            "
+                        >
 
-                            <h2 className="text-2xl font-bold mb-3">
+                            <h2
+                                className="
+                                    text-2xl
+                                    font-bold
+                                    mb-4
+                                "
+                            >
 
                                 Transcript
 
                             </h2>
 
-                            <div className="bg-gray-100 p-4 rounded">
+                            <p
+                                className="
+                                    text-gray-700
+                                    leading-7
+                                "
+                            >
 
                                 {transcript}
 
-                            </div>
+                            </p>
 
                         </div>
                     )
                 }
 
             </div>
-
-            <AudioRecorder />
 
         </div>
     );

@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.AudiotoSpeech.Entities.Transcription;
 import com.AudiotoSpeech.Repository.TranscriptionRepository;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class SpeechService {
@@ -164,21 +164,21 @@ public class SpeechService {
                                 String.class
                         );
 
-                String responseBody =
-                        pollingResponse.getBody();
+                JsonNode pollingJson =
+                        objectMapper.readTree(
+                                pollingResponse.getBody()
+                        );
 
-                System.out.println(responseBody);
+                String status =
+                        pollingJson.get("status")
+                                .asText();
 
-                if (responseBody.contains(
-                        "\"status\":\"completed\"")) {
+                System.out.println(status);
 
-                    JsonNode completedJson =
-                            objectMapper.readTree(
-                                    responseBody
-                            );
+                if (status.equals("completed")) {
 
                     String transcript =
-                            completedJson.get("text")
+                            pollingJson.get("text")
                                     .asText();
 
                     Transcription transcription =
@@ -204,8 +204,7 @@ public class SpeechService {
                     return transcript;
                 }
 
-                else if (responseBody.contains(
-                        "\"status\":\"error\"")) {
+                else if (status.equals("error")) {
 
                     return "Transcription Failed";
                 }
