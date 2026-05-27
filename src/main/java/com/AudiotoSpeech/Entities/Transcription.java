@@ -8,13 +8,16 @@ import jakarta.persistence.Id;
 @Entity
 public class Transcription {
 
-    @Id
+   
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String audioFileName;
 
     private String transcript;
+    
+    private String createdAt;
 
     public Transcription() {
 
@@ -49,4 +52,12 @@ public class Transcription {
     public void setTranscript(String transcript) {
         this.transcript = transcript;
     }
+    public String getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
+
 }

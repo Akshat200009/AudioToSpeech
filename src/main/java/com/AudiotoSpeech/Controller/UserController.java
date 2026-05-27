@@ -19,7 +19,7 @@ public class UserController {
 	{
 		return service.saveUser(user);
 	}
-	@GetMapping("/login")
+	@PostMapping("/login")
 	public String loginUser(@RequestBody User user)
 	{
 	 return service.loginUser(user.getEmail(), user.getPassword());
