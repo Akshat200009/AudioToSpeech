@@ -3,18 +3,24 @@ import { useState } from "react";
 import api from "../Services/api";
 
 import AudioRecorder from "../Components/AudioRecorder";
+import RealtimeSpeech
+from "../Components/RealtimeSpeech";
 
 import { toast } from "react-toastify";
 
 function Upload() {
 
-    const [file, setFile] = useState(null);
+    const [file, setFile] =
+            useState(null);
 
     const [transcript, setTranscript] =
             useState("");
 
     const [loading, setLoading] =
             useState(false);
+
+    const [language, setLanguage] =
+            useState("en");
 
     const handleUpload = async () => {
 
@@ -27,16 +33,27 @@ function Upload() {
             return;
         }
 
-        const formData = new FormData();
+        const formData =
+                new FormData();
 
-        formData.append("file", file);
+        formData.append(
+                "file",
+                file
+        );
+
+        formData.append(
+                "language",
+                language
+        );
 
         try {
 
             setLoading(true);
 
             const token =
-                    localStorage.getItem("token");
+                    localStorage.getItem(
+                            "token"
+                    );
 
             const response =
                     await api.post(
@@ -48,7 +65,7 @@ function Upload() {
                             {
                                 headers: {
                                     Authorization:
-                                        `Bearer ${token}`
+                                            `Bearer ${token}`
                                 }
                             }
                     );
@@ -58,7 +75,7 @@ function Upload() {
             );
 
             toast.success(
-                "Transcript Generated"
+                    "Transcript Generated"
             );
 
         } catch (error) {
@@ -66,7 +83,7 @@ function Upload() {
             console.log(error);
 
             toast.error(
-                "Upload Failed"
+                    "Upload Failed"
             );
 
         } finally {
@@ -80,9 +97,7 @@ function Upload() {
         <div
             className="
                 min-h-screen
-                bg-gradient-to-br
-                from-gray-100
-                to-gray-300
+                bg-black
                 flex
                 justify-center
                 items-center
@@ -92,25 +107,30 @@ function Upload() {
 
             <div
                 className="
-                    bg-white
+                    bg-gradient-to-br
+                    from-gray-900
+                    to-black
+                    text-white
+                    border
+                    border-gray-800
                     p-10
-                    rounded-2xl
+                    rounded-3xl
                     shadow-2xl
                     w-full
-                    max-w-2xl
+                    max-w-3xl
                 "
             >
 
                 <h1
                     className="
-                        text-4xl
+                        text-5xl
                         font-bold
                         text-center
                         mb-8
                     "
                 >
 
-                    Upload Audio
+                    🎵 AI Speech To Text
 
                 </h1>
 
@@ -121,35 +141,82 @@ function Upload() {
 
                     onChange={(e) =>
                         setFile(
-                            e.target.files[0]
+                                e.target.files[0]
                         )
                     }
 
                     className="
                         w-full
                         border
+                        border-gray-700
+                        bg-gray-800
                         p-3
-                        rounded
-                        mb-6
+                        rounded-xl
+                        mb-5
                     "
                 />
+
+                <select
+                    value={language}
+
+                    onChange={(e) =>
+                        setLanguage(
+                                e.target.value
+                        )
+                    }
+
+                    className="
+                        w-full
+                        p-3
+                        rounded-xl
+                        mb-5
+                        text-black
+                        font-medium
+                    "
+                >
+
+                    <option value="en">
+                        English
+                    </option>
+
+                    <option value="hi">
+                        Hindi
+                    </option>
+
+                    <option value="mr">
+                        Marathi
+                    </option>
+
+                    <option value="es">
+                        Spanish
+                    </option>
+
+                    <option value="fr">
+                        French
+                    </option>
+
+                </select>
 
                 <button
                     onClick={handleUpload}
 
                     className="
-                        bg-black
-                        hover:bg-gray-800
+                        bg-gradient-to-r
+                        from-purple-500
+                        to-pink-500
+                        hover:scale-105
+                        hover:shadow-pink-500/50
                         transition-all
                         duration-300
                         text-white
                         px-6
                         py-3
-                        rounded
+                        rounded-xl
                         w-full
                         flex
                         justify-center
                         items-center
+                        font-semibold
                     "
                 >
 
@@ -158,8 +225,8 @@ function Upload() {
 
                             <div
                                 className="
-                                    h-5
-                                    w-5
+                                    h-6
+                                    w-6
                                     border-2
                                     border-white
                                     border-t-transparent
@@ -176,22 +243,15 @@ function Upload() {
 
                 </button>
 
-                <div className="mt-10">
-
-                    <AudioRecorder />
-
-                </div>
-
                 {
                     transcript && (
 
                         <div
                             className="
-                                mt-10
-                                bg-gray-100
+                                mt-8
+                                bg-gray-800
                                 p-6
-                                rounded-xl
-                                shadow-md
+                                rounded-2xl
                             "
                         >
 
@@ -199,7 +259,7 @@ function Upload() {
                                 className="
                                     text-2xl
                                     font-bold
-                                    mb-4
+                                    mb-3
                                 "
                             >
 
@@ -209,8 +269,8 @@ function Upload() {
 
                             <p
                                 className="
-                                    text-gray-700
-                                    leading-7
+                                    text-gray-300
+                                    leading-8
                                 "
                             >
 
@@ -221,6 +281,9 @@ function Upload() {
                         </div>
                     )
                 }
+
+                <AudioRecorder />
+                <RealtimeSpeech />
 
             </div>
 

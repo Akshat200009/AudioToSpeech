@@ -90,6 +90,41 @@ function History() {
         }
     };
 
+    const downloadTranscript = (
+            transcript,
+            fileName
+    ) => {
+
+        const element =
+                document.createElement("a");
+
+        const file =
+                new Blob(
+
+                        [transcript],
+
+                        {
+                            type: "text/plain"
+                        }
+                );
+
+        element.href =
+                URL.createObjectURL(file);
+
+        element.download =
+                `${fileName}.txt`;
+
+        document.body.appendChild(
+                element
+        );
+
+        element.click();
+
+        toast.success(
+                "Transcript Downloaded"
+        );
+    };
+
     return (
 
         <div
@@ -104,10 +139,11 @@ function History() {
 
             <h1
                 className="
-                    text-4xl
+                    text-5xl
                     font-bold
-                    mb-10
+                    mb-12
                     text-center
+                    text-gray-900
                 "
             >
 
@@ -147,7 +183,7 @@ function History() {
                         className="
                             bg-white
                             p-10
-                            rounded-2xl
+                            rounded-3xl
                             shadow-xl
                             text-center
                             max-w-xl
@@ -170,6 +206,7 @@ function History() {
                         <p
                             className="
                                 text-gray-600
+                                text-lg
                             "
                         >
 
@@ -185,7 +222,7 @@ function History() {
                     <div
                         className="
                             grid
-                            gap-6
+                            gap-8
                         "
                     >
 
@@ -197,13 +234,15 @@ function History() {
 
                                     className="
                                         bg-white
-                                        p-6
-                                        rounded-2xl
+                                        p-8
+                                        rounded-3xl
                                         shadow-lg
                                         hover:shadow-2xl
                                         hover:-translate-y-1
                                         transition-all
                                         duration-300
+                                        border
+                                        border-gray-200
                                     "
                                 >
 
@@ -212,70 +251,123 @@ function History() {
                                             flex
                                             justify-between
                                             items-center
-                                            mb-4
+                                            mb-6
+                                            flex-wrap
+                                            gap-4
                                         "
                                     >
 
-                                        <h2
+                                        <div>
+
+                                            <h2
+                                                className="
+                                                    text-2xl
+                                                    font-bold
+                                                    text-gray-900
+                                                "
+                                            >
+
+                                                {item.audioFileName}
+
+                                            </h2>
+
+                                            <p
+                                                className="
+                                                    text-sm
+                                                    text-gray-500
+                                                    mt-1
+                                                "
+                                            >
+
+                                                {item.createdAt}
+
+                                            </p>
+
+                                        </div>
+
+                                        <div
                                             className="
-                                                text-2xl
-                                                font-bold
+                                                flex
+                                                gap-3
                                             "
                                         >
 
-                                            {item.audioFileName}
+                                            <button
+                                                onClick={() =>
+                                                    downloadTranscript(
+                                                        item.transcript,
+                                                        item.audioFileName
+                                                    )
+                                                }
 
-                                        </h2>
+                                                className="
+                                                    bg-blue-500
+                                                    hover:bg-blue-700
+                                                    hover:scale-105
+                                                    transition-all
+                                                    duration-300
+                                                    text-white
+                                                    px-5
+                                                    py-2
+                                                    rounded-xl
+                                                    shadow-md
+                                                "
+                                            >
 
-                                        <button
-                                            onClick={() =>
-                                                deleteTranscript(
-                                                    item.id
-                                                )
-                                            }
+                                                Download
 
-                                            className="
-                                                bg-red-500
-                                                hover:bg-red-700
-                                                hover:scale-105
-                                                transition-all
-                                                duration-300
-                                                text-white
-                                                px-4
-                                                py-2
-                                                rounded
-                                                shadow-md
-                                            "
-                                        >
+                                            </button>
 
-                                            Delete
+                                            <button
+                                                onClick={() =>
+                                                    deleteTranscript(
+                                                        item.id
+                                                    )
+                                                }
 
-                                        </button>
+                                                className="
+                                                    bg-red-500
+                                                    hover:bg-red-700
+                                                    hover:scale-105
+                                                    transition-all
+                                                    duration-300
+                                                    text-white
+                                                    px-5
+                                                    py-2
+                                                    rounded-xl
+                                                    shadow-md
+                                                "
+                                            >
+
+                                                Delete
+
+                                            </button>
+
+                                        </div>
 
                                     </div>
 
-                                    <p
+                                    <div
                                         className="
-                                            text-gray-700
-                                            leading-7
+                                            bg-gray-100
+                                            p-5
+                                            rounded-2xl
                                         "
                                     >
 
-                                        {item.transcript}
+                                        <p
+                                            className="
+                                                text-gray-700
+                                                leading-8
+                                                text-lg
+                                            "
+                                        >
 
-                                    </p>
+                                            {item.transcript}
 
-                                    <p
-                                        className="
-                                            mt-5
-                                            text-sm
-                                            text-gray-500
-                                        "
-                                    >
+                                        </p>
 
-                                        {item.createdAt}
-
-                                    </p>
+                                    </div>
 
                                 </div>
                             ))

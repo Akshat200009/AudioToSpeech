@@ -73,16 +73,28 @@ public class AudioController {
                     .body("File Upload Failed");
         }
     }
-    
     @PostMapping("/speech-to-text")
     public SpeechResponse convertSpeechToText(
-            @RequestParam("file") MultipartFile file) {
+
+            @RequestParam("file")
+            MultipartFile file,
+
+            @RequestParam("language")
+            String language
+    ) {
 
         String transcript =
-                speechService.convertSpeechToText(file);
+                speechService.convertSpeechToText(
+                        file,
+                        language
+                );
 
-        return new SpeechResponse(transcript);
-    }
+        return new SpeechResponse(
+                transcript
+        );
+        
+    }   
+    
     @GetMapping("/history")
     public List<Transcription> getHistory() {
 

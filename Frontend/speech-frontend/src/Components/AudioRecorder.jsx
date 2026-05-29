@@ -1,9 +1,6 @@
+import { useRef, useState } from "react";
 import { ReactMic } from "react-mic";
-
-import { useState } from "react";
-
 import api from "../Services/api";
-
 import { toast } from "react-toastify";
 
 function AudioRecorder() {
@@ -17,12 +14,18 @@ function AudioRecorder() {
     const [loading, setLoading] =
             useState(false);
 
+    const [language, setLanguage] =
+            useState("en");
+
+    const languageRef =
+            useRef("en");
+
     const startRecording = () => {
 
         setRecord(true);
 
         toast.info(
-            "Recording Started"
+                "Recording Started"
         );
     };
 
@@ -31,34 +34,41 @@ function AudioRecorder() {
         setRecord(false);
 
         toast.info(
-            "Recording Stopped"
+                "Recording Stopped"
         );
     };
 
-    const onStop = async (recordedBlob) => {
+    const onStop = async (
+            recordedBlob
+    ) => {
 
         try {
 
             setLoading(true);
 
-            toast.info(
-                "Processing Audio..."
-            );
-
             const formData =
                     new FormData();
 
             formData.append(
-
                     "file",
-
                     recordedBlob.blob,
-
                     "recording.mp3"
             );
 
+            console.log(
+                    "Sending Language:",
+                    languageRef.current
+            );
+
+            formData.append(
+                    "language",
+                    languageRef.current
+            );
+
             const token =
-                    localStorage.getItem("token");
+                    localStorage.getItem(
+                            "token"
+                    );
 
             const response =
                     await api.post(
@@ -70,7 +80,7 @@ function AudioRecorder() {
                             {
                                 headers: {
                                     Authorization:
-                                        `Bearer ${token}`
+                                            `Bearer ${token}`
                                 }
                             }
                     );
@@ -80,15 +90,15 @@ function AudioRecorder() {
             );
 
             toast.success(
-                "Transcript Ready"
+                    "Transcript Generated"
             );
 
         } catch (error) {
 
-            console.log(error);
+            console.error(error);
 
             toast.error(
-                "Recording Upload Failed"
+                    "Failed To Generate Transcript"
             );
 
         } finally {
@@ -104,7 +114,8 @@ function AudioRecorder() {
                 mt-14
                 bg-gradient-to-br
                 from-black
-                to-gray-900
+                via-gray-900
+                to-blue-950
                 p-8
                 rounded-3xl
                 shadow-2xl
@@ -120,10 +131,58 @@ function AudioRecorder() {
                     mb-8
                 "
             >
-
                 🎤 Record Audio
-
             </h1>
+
+            <select
+                value={language}
+
+                onChange={(e) => {
+
+                    setLanguage(
+                            e.target.value
+                    );
+
+                    languageRef.current =
+                            e.target.value;
+
+                    console.log(
+                            "Dropdown Changed:",
+                            languageRef.current
+                    );
+                }}
+
+                className="
+                    w-full
+                    p-4
+                    rounded-xl
+                    mb-6
+                    text-black
+                    font-medium
+                "
+            >
+
+                <option value="en">
+                    English
+                </option>
+
+                <option value="hi">
+                    Hindi
+                </option>
+
+                <option value="mr">
+                    Marathi
+                </option>
+
+                <option value="es">
+                    Spanish
+                </option>
+
+                <option value="fr">
+                    French
+                </option>
+
+            </select>
 
             <div
                 className="
@@ -171,9 +230,7 @@ function AudioRecorder() {
                         shadow-lg
                     "
                 >
-
                     Start Recording
-
                 </button>
 
                 <button
@@ -192,80 +249,70 @@ function AudioRecorder() {
                         shadow-lg
                     "
                 >
-
                     Stop Recording
-
                 </button>
 
             </div>
 
-            {
-                loading && (
+            {loading && (
+
+                <div
+                    className="
+                        flex
+                        justify-center
+                        mt-8
+                    "
+                >
 
                     <div
                         className="
-                            flex
-                            justify-center
-                            mt-8
+                            h-10
+                            w-10
+                            border-4
+                            border-white
+                            border-t-transparent
+                            rounded-full
+                            animate-spin
                         "
-                    >
+                    ></div>
 
-                        <div
-                            className="
-                                h-10
-                                w-10
-                                border-4
-                                border-white
-                                border-t-transparent
-                                rounded-full
-                                animate-spin
-                            "
-                        ></div>
+                </div>
+            )}
 
-                    </div>
-                )
-            }
+            {transcript && (
 
-            {
-                transcript && (
+                <div
+                    className="
+                        mt-10
+                        bg-white
+                        text-black
+                        p-6
+                        rounded-2xl
+                        shadow-xl
+                    "
+                >
 
-                    <div
+                    <h2
                         className="
-                            mt-10
-                            bg-white
-                            text-black
-                            p-6
-                            rounded-2xl
-                            shadow-xl
+                            text-2xl
+                            font-bold
+                            mb-4
                         "
                     >
+                        Transcript
+                    </h2>
 
-                        <h2
-                            className="
-                                text-2xl
-                                font-bold
-                                mb-4
-                            "
-                        >
+                    <p
+                        className="
+                            text-gray-700
+                            leading-8
+                        "
+                    >
+                        {transcript}
+                    </p>
 
-                            Transcript
-
-                        </h2>
-
-                        <p
-                            className="
-                                text-gray-700
-                                leading-8
-                            "
-                        >
-
-                            {transcript}
-
-                        </p>
-
-                    </div>
-                )
-            }
+                </div>
+            )}
 
         </div>
     );

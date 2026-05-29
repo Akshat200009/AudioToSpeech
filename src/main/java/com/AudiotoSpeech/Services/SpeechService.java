@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.AudiotoSpeech.Entities.Transcription;
 import com.AudiotoSpeech.Repository.TranscriptionRepository;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,10 +32,16 @@ public class SpeechService {
     private String apiKey;
 
     public String convertSpeechToText(
-            MultipartFile file
+            MultipartFile file,
+            String language
     ) {
 
         try {
+
+            System.out.println(
+                    "Language Received = "
+                            + language
+            );
 
             File convFile =
                     new File(
@@ -44,9 +49,13 @@ public class SpeechService {
                     );
 
             FileOutputStream fos =
-                    new FileOutputStream(convFile);
+                    new FileOutputStream(
+                            convFile
+                    );
 
-            fos.write(file.getBytes());
+            fos.write(
+                    file.getBytes()
+            );
 
             fos.close();
 
@@ -55,6 +64,8 @@ public class SpeechService {
 
             ObjectMapper objectMapper =
                     new ObjectMapper();
+
+            // Upload Audio
 
             HttpHeaders headers =
                     new HttpHeaders();
@@ -94,13 +105,27 @@ public class SpeechService {
                     );
 
             String uploadUrl =
-                    uploadJson.get("upload_url")
-                            .asText();
+                    uploadJson.get(
+                            "upload_url"
+                    ).asText();
+
+            // Create Transcript Request
 
             String jsonBody =
-                    "{ \"audio_url\": \"" +
-                            uploadUrl +
-                            "\", \"speech_models\": [\"universal-2\"] }";
+                    "{"
+                    + "\"audio_url\":\""
+                    + uploadUrl
+                    + "\","
+                    + "\"speech_models\":[\"universal-2\"],"
+                    + "\"language_code\":\""
+                    + language
+                    + "\""
+                    + "}";
+
+            System.out.println(
+                    "Transcript Request = "
+                            + jsonBody
+            );
 
             HttpHeaders transcriptHeaders =
                     new HttpHeaders();
@@ -114,7 +139,8 @@ public class SpeechService {
                     MediaType.APPLICATION_JSON
             );
 
-            HttpEntity<String> transcriptRequest =
+            HttpEntity<String>
+                    transcriptRequest =
                     new HttpEntity<>(
 
                             jsonBody,
@@ -122,7 +148,8 @@ public class SpeechService {
                             transcriptHeaders
                     );
 
-            ResponseEntity<String> transcriptResponse =
+            ResponseEntity<String>
+                    transcriptResponse =
                     restTemplate.postForEntity(
 
                             "https://api.assemblyai.com/v2/transcript",
@@ -132,14 +159,21 @@ public class SpeechService {
                             String.class
                     );
 
+            System.out.println(
+                    transcriptResponse
+                            .getBody()
+            );
+
             JsonNode transcriptJson =
                     objectMapper.readTree(
-                            transcriptResponse.getBody()
+                            transcriptResponse
+                                    .getBody()
                     );
 
             String transcriptId =
-                    transcriptJson.get("id")
-                            .asText();
+                    transcriptJson.get(
+                            "id"
+                    ).asText();
 
             String pollingEndpoint =
                     "https://api.assemblyai.com/v2/transcript/"
@@ -147,12 +181,14 @@ public class SpeechService {
 
             while (true) {
 
-                HttpEntity<String> pollingEntity =
+                HttpEntity<String>
+                        pollingEntity =
                         new HttpEntity<>(
                                 transcriptHeaders
                         );
 
-                ResponseEntity<String> pollingResponse =
+                ResponseEntity<String>
+                        pollingResponse =
                         restTemplate.exchange(
 
                                 pollingEndpoint,
@@ -169,42 +205,66 @@ public class SpeechService {
                                 pollingResponse.getBody()
                         );
 
+                System.out.println(
+                        pollingResponse.getBody()
+                );
+
                 String status =
                         pollingJson.get("status")
                                 .asText();
+                
+                System.out.println(
+                        "Status = "
+                                + status
+                );
 
-                System.out.println(status);
-
-                if (status.equals("completed")) {
+                if (
+                        status.equals(
+                                "completed"
+                        )
+                ) {
 
                     String transcript =
-                            pollingJson.get("text")
-                                    .asText();
+                            pollingJson.get(
+                                    "text"
+                            ).asText();
 
-                    Transcription transcription =
+                    Transcription
+                            transcription =
                             new Transcription();
 
-                    transcription.setAudioFileName(
-                            file.getOriginalFilename()
-                    );
+                    transcription
+                            .setAudioFileName(
+                                    file.getOriginalFilename()
+                            );
 
-                    transcription.setTranscript(
-                            transcript
-                    );
+                    transcription
+                            .setTranscript(
+                                    transcript
+                            );
 
-                    transcription.setCreatedAt(
-                            LocalDateTime.now()
-                                    .toString()
-                    );
+                    transcription
+                            .setCreatedAt(
+                                    LocalDateTime
+                                            .now()
+                                            .toString()
+                            );
 
-                    transcriptionRepository.save(
-                            transcription
-                    );
+                    transcriptionRepository
+                            .save(
+                                    transcription
+                            );
+
+                    convFile.delete();
 
                     return transcript;
                 }
 
-                else if (status.equals("error")) {
+                else if (
+                        status.equals(
+                                "error"
+                        )
+                ) {
 
                     return "Transcription Failed";
                 }
