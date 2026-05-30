@@ -9,6 +9,9 @@ function RealtimeSpeech() {
     const [transcript, setTranscript] =
         useState("");
 
+    const [language, setLanguage] =
+        useState("en-US");
+
     const recognitionRef =
         useRef(null);
 
@@ -21,7 +24,7 @@ function RealtimeSpeech() {
         if (!SpeechRecognition) {
 
             toast.error(
-                "Speech Recognition not supported"
+                "Speech Recognition Not Supported"
             );
 
             return;
@@ -34,11 +37,20 @@ function RealtimeSpeech() {
 
         recognition.interimResults = true;
 
-        recognition.lang = "en-US";
+        recognition.lang = language;
+
+        recognition.onstart = () => {
+
+            setListening(true);
+
+            toast.success(
+                "Listening Started"
+            );
+        };
 
         recognition.onresult = (event) => {
 
-            let finalTranscript = "";
+            let text = "";
 
             for (
                 let i = 0;
@@ -46,35 +58,95 @@ function RealtimeSpeech() {
                 i++
             ) {
 
-                finalTranscript +=
-                    event.results[i][0].transcript;
+                text +=
+                    event.results[i][0]
+                        .transcript + " ";
             }
 
-            setTranscript(
-                finalTranscript
+            setTranscript(text);
+        };
+
+        recognition.onerror = (event) => {
+
+            console.log(event.error);
+
+            toast.error(
+                event.error
             );
         };
 
-        recognition.start();
+        recognition.onend = () => {
+
+            setListening(false);
+        };
 
         recognitionRef.current =
             recognition;
 
-        setListening(true);
-
-        toast.success(
-            "Listening Started"
-        );
+        recognition.start();
     };
 
     const stopListening = () => {
 
-        recognitionRef.current?.stop();
+        if (
+            recognitionRef.current
+        ) {
 
-        setListening(false);
+            recognitionRef.current.stop();
+        }
 
         toast.info(
             "Listening Stopped"
+        );
+    };
+
+    const copyTranscript = () => {
+
+        navigator.clipboard.writeText(
+            transcript
+        );
+
+        toast.success(
+            "Transcript Copied"
+        );
+    };
+
+    const clearTranscript = () => {
+
+        setTranscript("");
+
+        toast.info(
+            "Transcript Cleared"
+        );
+    };
+
+    const downloadTranscript = () => {
+
+        const element =
+            document.createElement("a");
+
+        const file =
+            new Blob(
+                [transcript],
+                {
+                    type: "text/plain"
+                }
+            );
+
+        element.href =
+            URL.createObjectURL(file);
+
+        element.download =
+            "RealtimeTranscript.txt";
+
+        document.body.appendChild(
+            element
+        );
+
+        element.click();
+
+        toast.success(
+            "Transcript Downloaded"
         );
     };
 
@@ -82,73 +154,196 @@ function RealtimeSpeech() {
 
         <div
             className="
-                mt-10
                 bg-white
-                p-8
                 rounded-3xl
-                shadow-xl
+                shadow-2xl
+                p-8
+                mt-10
             "
         >
 
             <h2
                 className="
-                    text-3xl
+                    text-4xl
                     font-bold
-                    mb-6
                     text-center
+                    mb-6
+                    text-gray-800
                 "
             >
                 ⚡ Real-Time Speech Recognition
             </h2>
+
+            <select
+                value={language}
+                onChange={(e) =>
+                    setLanguage(
+                        e.target.value
+                    )
+                }
+                className="
+                    w-full
+                    p-3
+                    rounded-xl
+                    border
+                    border-gray-300
+                    mb-5
+                "
+            >
+
+                <option value="en-US">
+                    English
+                </option>
+
+                <option value="hi-IN">
+                    Hindi
+                </option>
+
+                <option value="mr-IN">
+                    Marathi
+                </option>
+
+            </select>
+
+            <div
+                className="
+                    text-center
+                    text-lg
+                    font-semibold
+                    mb-6
+                "
+            >
+
+                {
+                    listening
+                        ? "🟢 Listening..."
+                        : "🔴 Stopped"
+                }
+
+            </div>
 
             <div
                 className="
                     flex
                     justify-center
                     gap-4
+                    flex-wrap
                     mb-6
                 "
             >
 
                 <button
-                    onClick={startListening}
+                    onClick={
+                        startListening
+                    }
                     className="
                         bg-green-500
+                        hover:bg-green-700
                         text-white
                         px-6
                         py-3
                         rounded-xl
+                        transition
                     "
                 >
                     Start Listening
                 </button>
 
                 <button
-                    onClick={stopListening}
+                    onClick={
+                        stopListening
+                    }
                     className="
                         bg-red-500
+                        hover:bg-red-700
                         text-white
                         px-6
                         py-3
                         rounded-xl
+                        transition
                     "
                 >
                     Stop Listening
+                </button>
+
+                <button
+                    onClick={
+                        copyTranscript
+                    }
+                    className="
+                        bg-blue-500
+                        hover:bg-blue-700
+                        text-white
+                        px-6
+                        py-3
+                        rounded-xl
+                        transition
+                    "
+                >
+                    Copy
+                </button>
+
+                <button
+                    onClick={
+                        downloadTranscript
+                    }
+                    className="
+                        bg-purple-600
+                        hover:bg-purple-800
+                        text-white
+                        px-6
+                        py-3
+                        rounded-xl
+                        transition
+                    "
+                >
+                    Download
+                </button>
+
+                <button
+                    onClick={
+                        clearTranscript
+                    }
+                    className="
+                        bg-gray-700
+                        hover:bg-black
+                        text-white
+                        px-6
+                        py-3
+                        rounded-xl
+                        transition
+                    "
+                >
+                    Clear
                 </button>
 
             </div>
 
             <div
                 className="
-                    min-h-[150px]
-                    bg-gray-100
-                    p-5
-                    rounded-xl
+                    bg-white
+                    border
+                    border-gray-300
+                    rounded-2xl
+                    p-6
+                    min-h-[180px]
+                    text-black
+                    text-lg
+                    font-medium
+                    leading-8
+                    shadow-inner
                 "
             >
 
-                {transcript ||
-                    "Speak something..."}
+                {
+                    transcript
+                        ? transcript
+                        : (
+                            <span className="text-gray-400">
+                                🎤 Start speaking...
+                            </span>
+                        )
+                }
 
             </div>
 

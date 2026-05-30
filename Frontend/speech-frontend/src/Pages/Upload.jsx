@@ -130,7 +130,7 @@ function Upload() {
                     "
                 >
 
-                    🎵 AI Speech To Text
+                    🎵 Speech To Text
 
                 </h1>
 

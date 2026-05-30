@@ -4,10 +4,7 @@ function Navbar() {
 
     const navigate = useNavigate();
 
-    const token =
-            localStorage.getItem("token");
-
-    const handleLogout = () => {
+    const logout = () => {
 
         localStorage.removeItem("token");
 
@@ -18,100 +15,97 @@ function Navbar() {
 
         <nav
             className="
-                bg-black
-                text-white
-                px-10
-                py-5
-                flex
-                justify-between
-                items-center
+                bg-white
+                shadow-md
+                sticky
+                top-0
+                z-50
             "
         >
 
-            <h1 className="text-3xl font-bold">
-
-                Speech App
-
-            </h1>
-
-            <div className="flex gap-6 items-center">
+            <div
+                className="
+                    max-w-7xl
+                    mx-auto
+                    px-8
+                    h-20
+                    flex
+                    justify-between
+                    items-center
+                "
+            >
 
                 <Link
                     to="/"
-                    className="hover:text-gray-300"
+                    className="
+                        text-3xl
+                        font-bold
+                        text-indigo-600
+                    "
                 >
-
-                    Home
-
+                    🎤 Speech App
                 </Link>
 
-                {
-                    !token && (
+                <div
+                    className="
+                        flex
+                        items-center
+                        gap-6
+                    "
+                >
 
-                        <>
-                            <Link
-                                to="/login"
-                                className="hover:text-gray-300"
-                            >
+                    <Link
+                        to="/"
+                        className="
+                            text-gray-700
+                            hover:text-indigo-600
+                            font-medium
+                            transition
+                        "
+                    >
+                        Home
+                    </Link>
 
-                                Login
+                    <Link
+                        to="/upload"
+                        className="
+                            text-gray-700
+                            hover:text-indigo-600
+                            font-medium
+                            transition
+                        "
+                    >
+                        Upload
+                    </Link>
 
-                            </Link>
+                    <Link
+                        to="/history"
+                        className="
+                            text-gray-700
+                            hover:text-indigo-600
+                            font-medium
+                            transition
+                        "
+                    >
+                        History
+                    </Link>
 
-                            <Link
-                                to="/register"
-                                className="hover:text-gray-300"
-                            >
+                    <button
+                        onClick={logout}
+                        className="
+                            bg-red-500
+                            hover:bg-red-600
+                            text-white
+                            px-5
+                            py-2
+                            rounded-lg
+                            transition
+                        "
+                    >
+                        Logout
+                    </button>
 
-                                Register
-
-                            </Link>
-                        </>
-                    )
-                }
-
-                {
-                    token && (
-
-                        <>
-                            <Link
-                                to="/upload"
-                                className="hover:text-gray-300"
-                            >
-
-                                Upload
-
-                            </Link>
-
-                            <Link
-                                to="/history"
-                                className="hover:text-gray-300"
-                            >
-
-                                History
-
-                            </Link>
-
-                            <button
-                                onClick={handleLogout}
-
-                                className="
-                                    bg-red-500
-                                    hover:bg-red-700
-                                    px-4
-                                    py-2
-                                    rounded
-                                    transition-all
-                                    duration-300
-                                "
-                            >
-
-                                Logout
-
-                            </button>
-                        </>
-                    )
-                }
+                </div>
 
             </div>
 
