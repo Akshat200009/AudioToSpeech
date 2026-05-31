@@ -10,4 +10,9 @@ public class TestController {
     public String testApi() {
         return "Speech To Text Backend Running";
     }
+    @GetMapping("/")
+    public String home() {
+        return "AudioToSpeech Backend Running Successfully ";
+    }
+
 }
